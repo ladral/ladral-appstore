@@ -1,0 +1,53 @@
+{
+  "schemaVersion": 2,
+  "services": [
+    {
+      "name": "booklore",
+      "image": "booklore/booklore:1.18.5",
+      "isMain": true,
+      "internalPort": "6060",
+      "volumes": [
+        {
+          "source": "${APP_DATA_DIR}/data",
+          "target": "/app/data"
+        },
+        {
+          "source": "${APP_DATA_DIR}/books",
+          "target": "/books"
+        },
+        {
+          "source": "${APP_DATA_DIR}/bookdrop",
+          "target": "/bookdrop"
+        }
+      ],
+      "env": {
+        "USER_ID": "0",
+        "GROUP_ID": "0",
+        "TZ": "Etc/UTC",
+        "DATABASE_URL": "jdbc:mariadb://booklore_db:3306/booklore",
+        "DATABASE_USERNAME": "booklore",
+        "DATABASE_PASSWORD": "${APP_PASSWORD}",
+        "BOOKLORE_PORT": "6060"
+      }
+    },
+    {
+      "name": "booklore_db",
+      "image": "lscr.io/linuxserver/mariadb:11.4.5",
+      "volumes": [
+        {
+          "source": "${APP_DATA_DIR}/mariadb/config",
+          "target": "/config"
+        }
+      ],
+      "env": {
+        "PUID": "0",
+        "PGID": "0",
+        "TZ": "Etc/UTC",
+        "MYSQL_ROOT_PASSWORD": "${APP_PASSWORD}",
+        "MYSQL_DATABASE": "booklore",
+        "MYSQL_USER": "booklore",
+        "MYSQL_PASSWORD": "${APP_PASSWORD}"
+      }
+    }
+  ]
+}
