@@ -23,11 +23,11 @@
       "environment": [
         {
           "key": "USER_ID",
-          "value": "0"
+          "value": "1000"
         },
         {
           "key": "GROUP_ID",
-          "value": "0"
+          "value": "1000"
         },
         {
           "key": "TZ",
@@ -63,11 +63,11 @@
       "environment": [
         {
           "key": "PUID",
-          "value": "0"
+          "value": "1000"
         },
         {
           "key": "PGID",
-          "value": "0"
+          "value": "1000"
         },
         {
           "key": "TZ",
