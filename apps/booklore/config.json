@@ -13,6 +13,20 @@
   "version": "1.18.5",
   "source": "https://github.com/booklore-app/booklore",
   "exposable": true,
+  "form_fields": [
+    {
+      "type": "random",
+      "label": "Database password",
+      "min": 32,
+      "env_variable": "BOOKLORE_DATABASE_PASSWORD"
+    },
+    {
+      "type": "random",
+      "label": "Database root password",
+      "min": 32,
+      "env_variable": "BOOKLORE_DATABASE_ROOT_PASSWORD"
+    }
+  ],
   "supported_architectures": [
     "amd64",
     "arm64"
