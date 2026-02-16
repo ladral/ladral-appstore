@@ -43,7 +43,7 @@
         },
         {
           "key": "DATABASE_PASSWORD",
-          "value": "${APP_PASSWORD}"
+          "value": "${BOOKLORE_DATABASE_PASSWORD}"
         },
         {
           "key": "BOOKLORE_PORT",
@@ -75,7 +75,7 @@
         },
         {
           "key": "MYSQL_ROOT_PASSWORD",
-          "value": "${APP_PASSWORD}"
+          "value": "${BOOKLORE_DATABASE_ROOT_PASSWORD}"
         },
         {
           "key": "MYSQL_DATABASE",
@@ -87,7 +87,7 @@
         },
         {
           "key": "MYSQL_PASSWORD",
-          "value": "${APP_PASSWORD}"
+          "value": "${BOOKLORE_DATABASE_PASSWORD}"
         }
       ]
     }
