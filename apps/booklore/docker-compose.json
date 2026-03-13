@@ -3,7 +3,7 @@
   "services": [
     {
       "name": "booklore",
-      "image": "booklore/booklore:v2.0.5",
+      "image": "booklore/booklore:v2.2.0",
       "isMain": true,
       "internalPort": "6060",
       "volumes": [
@@ -53,7 +53,7 @@
     },
     {
       "name": "booklore_db",
-      "image": "lscr.io/linuxserver/mariadb:11.4.5",
+      "image": "lscr.io/linuxserver/mariadb:11.4.9",
       "volumes": [
         {
           "hostPath": "${APP_DATA_DIR}/mariadb/config",
