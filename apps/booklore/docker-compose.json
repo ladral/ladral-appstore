@@ -2,7 +2,7 @@
   "schemaVersion": 2,
   "services": [
     {
-      "name": "booklore",
+      "name": "grimmory",
       "image": "grimmory/grimmory:nightly-20260409-a86d661",
       "isMain": true,
       "internalPort": "6060",
