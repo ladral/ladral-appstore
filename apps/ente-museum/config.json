@@ -12,7 +12,7 @@
   ],
   "description": "Ente Museum is the core backend server for all Ente apps and must be installed prior to any other Ente app",
   "tipi_version": 1,
-  "version": "3.0.3",
+  "version": "d449381395df63e274ad1effbd63709d54dfdf6e",
   "source": "https://github.com/ente-io/ente",
   "exposable": true,
   "form_fields": [
