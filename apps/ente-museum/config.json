@@ -4,7 +4,7 @@
   "available": true,
   "short_desc": "Ente Museum is the core backend server for the Ente ecosystem.",
   "author": "ente",
-  "port": 8756,
+  "port": 28756,
   "https": true,
   "categories": [
     "media",
