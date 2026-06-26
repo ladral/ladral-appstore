@@ -1,0 +1,130 @@
+x-runtipi:
+  schema_version: 2
+services:
+  caddy:
+    image: caddy:2.11.4-alpine
+    restart: unless-stopped
+    command: >
+      sh -c "echo '
+
+        :8080 {
+          log {
+            output stdout
+            format console
+            level INFO
+          }
+
+          handle /s3-storage/* {
+            reverse_proxy rustfs:9000
+          }
+
+          reverse_proxy museum:8080
+        }
+
+        :9001 {
+            log {
+              output stdout
+              format console
+              level INFO
+            }
+
+            reverse_proxy rustfs:9001
+        }
+
+      ' > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile
+      --adapter caddyfile"
+    ports:
+      - 9001:9001/tcp
+      - 9001:9001/udp
+    x-runtipi:
+      internal_port: 8080
+      is_main: true
+  museum:
+    image: ghcr.io/ente/server:d449381395df63e274ad1effbd63709d54dfdf6e
+    restart: unless-stopped
+    entrypoint: |
+      sh -c "wget https://github.com/ente/ente/releases/download/cli-v0.2.3/ente-cli-v0.2.3-linux-arm64.tar.gz -O /tmp/ente-cli.tar.gz && tar -xf /tmp/ente-cli.tar.gz -C /tmp && mv /tmp/ente /usr/local/bin/ && chmod +x /usr/local/bin/ente && ./museum"
+    volumes:
+      - ${APP_DATA_DIR}/museum-data:/data
+      - ${APP_DATA_DIR}/cli-data:/cli-data
+    environment:
+      - ENTE_DB_HOST=postgres
+      - ENTE_DB_PORT=5432
+      - ENTE_DB_USER=ente
+      - ENTE_DB_PASSWORD=${DB_PASSWORD}
+      - ENTE_DB_NAME=ente_db
+      - ENTE_S3_B2_EU_CEN_ARE_LOCAL_BUCKETS=false
+      - ENTE_S3_B2_EU_CEN_USE_PATH_STYLE_URLS=true
+      - ENTE_S3_B2_EU_CEN_ENDPOINT=${APP_EXPOSED_DOMAIN}/s3-storage
+      - ENTE_S3_B2_EU_CEN_KEY=admin
+      - ENTE_S3_B2_EU_CEN_SECRET=${S3_SECRETKEY}
+      - ENTE_S3_B2_EU_CEN_BUCKET=ente
+      - ENTE_S3_B2_EU_CEN_REGION=us-east-1
+      - ENTE_S3_AREVIRTUALHOSTSSUPPORTED=false
+      - ENTE_JWT_SECRET=${JWT_SECRET}
+      - ENTE_KEY_ENCRYPTION=${KEY_ENCRYPTION}
+      - ENTE_KEY_HASH=${KEY_HASH}
+      - ENTE_INTERNAL_ADMIN=${ADMIN_USER_ID:-1580559962386438}
+      - ENTE_INTERNAL_DISABLE_REGISTRATION=${DISABLE_REGISTRATION:-true}
+      - ENTE_SMTP_HOST=${SMTP_HOST}
+      - ENTE_SMTP_PORT=${SMTP_PORT}
+      - ENTE_SMTP_USERNAME=${SMTP_USERNAME}
+      - ENTE_SMTP_PASSWORD=${SMTP_PASSWORD}
+      - ENTE_SMTP_EMAIL=${SMTP_EMAIL}
+      - ENTE_SMTP_ENCRYPTION=${SMTP_ENCRYPTION}
+      - ENTE_APPS_PUBLIC_PASTE=${APPS_PUBLIC_PASTE}
+      - ENTE_APPS_PUBLIC_PHOTOS=${APPS_PUBLIC_PHOTOS}
+      - ENTE_APPS_PUBLIC_LOCKER=${APPS_PUBLIC_LOCKER}
+      - ENTE_APPS_PUBLIC_ALBUMS=${APPS_PUBLIC_ALBUMS}
+    depends_on:
+      postgres:
+        condition: service_healthy
+      rustfs:
+        condition: service_started
+    healthcheck:
+      test: wget -qO- http://127.0.0.1:8080/ping
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+    x-runtipi:
+      internal_port: 8080
+      is_main: true
+  postgres:
+    image: docker.io/library/postgres:18.4
+    restart: unless-stopped
+    volumes:
+      - ${APP_DATA_DIR}/postgres-data:/var/lib/postgresql
+    environment:
+      - POSTGRES_USER=ente
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=ente_db
+    healthcheck:
+      test: pg_isready -U ente -d ente_db
+      interval: 60s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
+  rustfs:
+    image: rustfs/rustfs:1.0.0-beta.8
+    restart: unless-stopped
+    volumes:
+      - ${APP_DATA_DIR}/rustfs-data:/data
+    environment:
+      - RUSTFS_ACCESS_KEY=admin
+      - RUSTFS_SECRET_KEY=${S3_SECRET_KEY}
+      - RUSTFS_CONSOLE_ENABLE=true
+      - RUSTFS_CORS_ALLOWED_ORIGINS=${S3_ALLOWED_ORIGINS:-*}
+      - RUSTFS_CONSOLE_CORS_ALLOWED_ORIGINS=${S3_CONSOLE_ALLOWED_ORIGINS:-*}
+      - RUSTFS_OBS_LOGGER_LEVEL=info
+      - RUSTFS_OBJECT_CACHE_ENABLE=true
+      - RUSTFS_OBJECT_CACHE_TTL_SECS=300
+      - RUSTFS_CONSOLE_ADDRESS=0.0.0.0:9001
+      - RUSTFS_ADDRESS=0.0.0.0:9000
+      - RUST_LOG=info
+    healthcheck:
+      test: curl -f http://127.0.0.1:9000/health
+      interval: 60s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
