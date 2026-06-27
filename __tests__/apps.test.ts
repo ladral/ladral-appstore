@@ -30,7 +30,7 @@ describe("each app should have the required files", async () => {
   const apps = await getApps()
 
   for (const app of apps) {
-    const files = ['config.json', 'docker-compose.json', 'metadata/logo.jpg', 'metadata/description.md']
+    const files = ['config.json', 'metadata/logo.jpg', 'metadata/description.md']
 
     for (const file of files) {
       test(`app ${app} should have ${file}`, async () => {
@@ -38,6 +38,13 @@ describe("each app should have the required files", async () => {
         expect(fileContent).not.toBeNull()
       })
     }
+
+    test(`app ${app} should have docker-compose.json or docker-compose.yaml`, async () => {
+      const jsonContent = await getFile(app, 'docker-compose.json')
+      const yamlContent = await getFile(app, 'docker-compose.yaml')
+
+      expect(jsonContent ?? yamlContent).not.toBeNull()
+    })
   }
 })
 
