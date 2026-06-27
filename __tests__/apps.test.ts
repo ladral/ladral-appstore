@@ -1,85 +1,88 @@
-import { expect, test, describe } from "bun:test";
-import { appInfoSchema, dynamicComposeSchema } from '@runtipi/common/schemas'
-import { fromError } from 'zod-validation-error';
+import {expect, test, describe} from "bun:test";
+import {appInfoSchema, dynamicComposeSchema} from '@runtipi/common/schemas'
+import {fromError} from 'zod-validation-error';
 import fs from 'node:fs'
 import path from 'node:path'
-import { type } from "arktype";
+import {type} from "arktype";
 
 const getApps = async () => {
-  const appsDir = await fs.promises.readdir(path.join(process.cwd(), 'apps'))
+    const appsDir = await fs.promises.readdir(path.join(process.cwd(), 'apps'))
 
-  const appDirs = appsDir.filter((app) => {
-    const stat = fs.statSync(path.join(process.cwd(), 'apps', app))
-    return stat.isDirectory()
-  })
+    const appDirs = appsDir.filter((app) => {
+        const stat = fs.statSync(path.join(process.cwd(), 'apps', app))
+        return stat.isDirectory()
+    })
 
-  return appDirs
+    return appDirs
 };
 
 const getFile = async (app: string, file: string) => {
-  const filePath = path.join(process.cwd(), 'apps', app, file)
-  try {
-    const file = await fs.promises.readFile(filePath, 'utf-8')
-    return file
-  } catch (err) {
-    return null
-  }
+    const filePath = path.join(process.cwd(), 'apps', app, file)
+    try {
+        const file = await fs.promises.readFile(filePath, 'utf-8')
+        return file
+    } catch (err) {
+        return null
+    }
 }
 
 describe("each app should have the required files", async () => {
-  const apps = await getApps()
+    const apps = await getApps()
 
-  for (const app of apps) {
-    const files = ['config.json', 'metadata/logo.jpg', 'metadata/description.md']
+    for (const app of apps) {
+        const files = ['config.json', 'metadata/logo.jpg', 'metadata/description.md']
 
-    for (const file of files) {
-      test(`app ${app} should have ${file}`, async () => {
-        const fileContent = await getFile(app, file)
-        expect(fileContent).not.toBeNull()
-      })
+        for (const file of files) {
+            test(`app ${app} should have ${file}`, async () => {
+                const fileContent = await getFile(app, file)
+                expect(fileContent).not.toBeNull()
+            })
+        }
+
+        test(`app ${app} should have docker-compose.json or docker-compose.yaml`, async () => {
+            const jsonContent = await getFile(app, 'docker-compose.json')
+            const yamlContent = await getFile(app, 'docker-compose.yaml')
+
+            expect(jsonContent ?? yamlContent).not.toBeNull()
+        })
     }
-
-    test(`app ${app} should have docker-compose.json or docker-compose.yaml`, async () => {
-      const jsonContent = await getFile(app, 'docker-compose.json')
-      const yamlContent = await getFile(app, 'docker-compose.yaml')
-
-      expect(jsonContent ?? yamlContent).not.toBeNull()
-    })
-  }
 })
 
 describe("each app should have a valid config.json", async () => {
-  const apps = await getApps()
+    const apps = await getApps()
 
-  for (const app of apps) {
-    test(`app ${app} should have a valid config.json`, async () => {
-      const fileContent = await getFile(app, 'config.json')
-      const parsed = appInfoSchema.omit('urn')(JSON.parse(fileContent || '{}'))
+    for (const app of apps) {
+        test(`app ${app} should have a valid config.json`, async () => {
+            const fileContent = await getFile(app, 'config.json')
+            const parsed = appInfoSchema.omit('urn')(JSON.parse(fileContent || '{}'))
 
-      if (parsed instanceof type.errors) {
-        const validationError = fromError(parsed);
-        console.error(`Error parsing config.json for app ${app}:`, validationError.toString());
-      }
+            if (parsed instanceof type.errors) {
+                const validationError = fromError(parsed);
+                console.error(`Error parsing config.json for app ${app}:`, validationError.toString());
+            }
 
-      expect(parsed instanceof type.errors).toBe(false)
-    })
-  }
+            expect(parsed instanceof type.errors).toBe(false)
+        })
+    }
 })
 
-describe("each app should have a valid docker-compose.json", async () => {
-  const apps = await getApps()
+describe("each app should have a valid docker-compose.json or docker-compose.yaml", async () => {
+    const apps = await getApps()
 
-  for (const app of apps) {
-    test(`app ${app} should have a valid docker-compose.json`, async () => {
-      const fileContent = await getFile(app, 'docker-compose.json')
-      const parsed = dynamicComposeSchema(JSON.parse(fileContent || '{}'))
+    for (const app of apps) {
+        test(`app ${app} should have a valid docker-compose.json or docker-compose.yaml`, async () => {
+            const jsonContent = await getFile(app, 'docker-compose.json')
+            const yamlContent = await getFile(app, 'docker-compose.yaml')
+            const fileContent = jsonContent ?? yamlContent
 
-      if (parsed instanceof type.errors) {
-        const validationError = fromError(parsed);
-        console.error(`Error parsing docker-compose.json for app ${app}:`, validationError.toString());
-      }
+            const parsed = dynamicComposeSchema(JSON.parse(fileContent || '{}'))
 
-      expect(parsed instanceof type.errors).toBe(false)
-    })
-  }
+            if (parsed instanceof type.errors) {
+                const validationError = fromError(parsed);
+                console.error(`Error parsing docker-compose.json or docker-compose.yaml for app ${app}:`, validationError.toString());
+            }
+
+            expect(parsed instanceof type.errors).toBe(false)
+        })
+    }
 });
