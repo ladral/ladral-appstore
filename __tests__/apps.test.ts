@@ -42,8 +42,9 @@ describe("each app should have the required files", async () => {
         test(`app ${app} should have docker-compose.json or docker-compose.yaml`, async () => {
             const jsonContent = await getFile(app, 'docker-compose.json')
             const yamlContent = await getFile(app, 'docker-compose.yaml')
+            const ymlContent = await getFile(app, 'docker-compose.yml')
 
-            expect(jsonContent ?? yamlContent).not.toBeNull()
+            expect(jsonContent ?? yamlContent ?? ymlContent).not.toBeNull()
         })
     }
 })
@@ -66,20 +67,21 @@ describe("each app should have a valid config.json", async () => {
     }
 })
 
-describe("each app should have a valid docker-compose.json or docker-compose.yaml", async () => {
+describe("each app should have a valid docker-compose.json, docker-compose.yaml, or docker-compose.yml", async () => {
     const apps = await getApps()
 
     for (const app of apps) {
-        test(`app ${app} should have a valid docker-compose.json or docker-compose.yaml`, async () => {
+        test(`app ${app} should have a valid docker-compose.json, docker-compose.yaml, or docker-compose.yml`, async () => {
             const jsonContent = await getFile(app, 'docker-compose.json')
             const yamlContent = await getFile(app, 'docker-compose.yaml')
-            const fileContent = jsonContent ?? yamlContent
+            const ymlContent = await getFile(app, 'docker-compose.yml')
+            const fileContent = jsonContent ?? yamlContent ?? ymlContent
 
             const parsed = dynamicComposeSchema(JSON.parse(fileContent || '{}'))
 
             if (parsed instanceof type.errors) {
                 const validationError = fromError(parsed);
-                console.error(`Error parsing docker-compose.json or docker-compose.yaml for app ${app}:`, validationError.toString());
+                console.error(`Error parsing docker-compose.json, docker-compose.yaml, or docker-compose.yml for app ${app}:`, validationError.toString());
             }
 
             expect(parsed instanceof type.errors).toBe(false)
