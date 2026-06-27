@@ -150,7 +150,7 @@
   "supported_architectures": [
     "arm64"
   ],
-  "created_at": 1782504583621 ,
-  "updated_at": 1782504583621 ,
+  "created_at": 1782504583621,
+  "updated_at": 1782504583621,
   "dynamic_config": true
 }
