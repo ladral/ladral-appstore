@@ -1,0 +1,156 @@
+{
+  "name": "Ente Museum",
+  "id": "ente-museum",
+  "available": true,
+  "short_desc": "Ente Museum is the core backend server for the Ente ecosystem.",
+  "author": "ente",
+  "port": 28756,
+  "https": true,
+  "categories": [
+    "media",
+    "photography"
+  ],
+  "description": "Ente Museum is the core backend server for all Ente apps and must be installed prior to any other Ente app",
+  "tipi_version": 1,
+  "version": "d449381395df63e274ad1effbd63709d54dfdf6e",
+  "source": "https://github.com/ente-io/ente",
+  "exposable": true,
+  "form_fields": [
+    {
+      "type": "random",
+      "label": "Database password",
+      "min": 32,
+      "env_variable": "DB_PASSWORD"
+    },
+    {
+      "type": "random",
+      "label": "S3 secret key",
+      "min": 32,
+      "env_variable": "S3_SECRETKEY"
+    },
+    {
+      "type": "text",
+      "required": true,
+      "label": "JWT secret",
+      "env_variable": "JWT_SECRET"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "Key encryption",
+      "env_variable": "ENTE_KEY_ENCRYPTION"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "Key hash",
+      "env_variable": "ENTE_KEY_HASH"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "Admin user id",
+      "env_variable": "ADMIN_USER_ID"
+    },
+    {
+      "type": "boolean",
+      "required": false,
+      "label": "Disable user registration",
+      "env_variable": "DISABLE_REGISTRATION"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "SMTP host",
+      "env_variable": "SMTP_HOST"
+    },
+    {
+      "type": "number",
+      "required": false,
+      "label": "SMTP port",
+      "env_variable": "SMTP_PORT"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "SMTP username",
+      "env_variable": "SMTP_USERNAME"
+    },
+    {
+      "type": "password",
+      "required": false,
+      "label": "SMTP password",
+      "env_variable": "SMTP_PASSWORD"
+    },
+    {
+      "type": "email",
+      "required": false,
+      "label": "SMTP email",
+      "env_variable": "SMTP_EMAIL"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "SMTP encryption method (TLS, SSL)",
+      "env_variable": "SMTP_ENCRYPTION",
+      "options": [
+        {
+          "label": "TLS",
+          "value": "TLS"
+        },
+        {
+          "label": "SSL",
+          "value": "SSL"
+        }
+      ]
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "Public ente paste url",
+      "env_variable": "APPS_PUBLIC_PASTE"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "Public ente photos url",
+      "env_variable": "APPS_PUBLIC_PHOTOS"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "Public ente locker url",
+      "env_variable": "APPS_PUBLIC_LOCKER"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "Public ente albums url",
+      "env_variable": "APPS_PUBLIC_ALBUMS"
+    },
+    {
+      "type": "random",
+      "label": "S3 storage secret key",
+      "min": 46,
+      "env_variable": "S3_SECRET_KEY"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "S3 storage allowed origins (comma separated)",
+      "env_variable": "S3_ALLOWED_ORIGINS"
+    },
+    {
+      "type": "text",
+      "required": false,
+      "label": "S3 console allowed origins (comma separated)",
+      "env_variable": "S3_CONSOLE_ALLOWED_ORIGINS"
+    }
+  ],
+  "supported_architectures": [
+    "arm64"
+  ],
+  "created_at": 1782504583621,
+  "updated_at": 1782504583621,
+  "dynamic_config": true
+}
