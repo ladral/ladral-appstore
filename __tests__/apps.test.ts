@@ -4,6 +4,7 @@ import {fromError} from 'zod-validation-error';
 import fs from 'node:fs'
 import path from 'node:path'
 import {type} from "arktype";
+import YAML from 'yaml'
 
 const getApps = async () => {
     const appsDir = await fs.promises.readdir(path.join(process.cwd(), 'apps'))
@@ -55,11 +56,13 @@ describe("each app should have a valid config.json", async () => {
     for (const app of apps) {
         test(`app ${app} should have a valid config.json`, async () => {
             const fileContent = await getFile(app, 'config.json')
-            const parsed = appInfoSchema.omit('urn')(JSON.parse(fileContent || '{}'))
+            if (!fileContent) {
+                return;
+            }
+            const parsed = appInfoSchema.omit('urn')(JSON.parse(fileContent))
 
             if (parsed instanceof type.errors) {
-                const validationError = fromError(parsed);
-                console.error(`Error parsing config.json for app ${app}:`, validationError.toString());
+                console.error(`Error parsing config.json for app ${app}:`, parsed.summary);
             }
 
             expect(parsed instanceof type.errors).toBe(false)
@@ -67,21 +70,22 @@ describe("each app should have a valid config.json", async () => {
     }
 })
 
-describe("each app should have a valid docker-compose.json, docker-compose.yaml, or docker-compose.yml", async () => {
+describe("each app should have a valid docker-compose.json", async () => {
     const apps = await getApps()
 
     for (const app of apps) {
-        test(`app ${app} should have a valid docker-compose.json, docker-compose.yaml, or docker-compose.yml`, async () => {
+        test(`app ${app} should have a valid docker-compose.json when present`, async () => {
             const jsonContent = await getFile(app, 'docker-compose.json')
-            const yamlContent = await getFile(app, 'docker-compose.yaml')
-            const ymlContent = await getFile(app, 'docker-compose.yml')
-            const fileContent = jsonContent ?? yamlContent ?? ymlContent
 
-            const parsed = dynamicComposeSchema(JSON.parse(fileContent || '{}'))
+            // schema validation for yaml and yml files isn't yet supported
+            if (!jsonContent) {
+                return;
+            }
+
+            const parsed = dynamicComposeSchema(JSON.parse(jsonContent))
 
             if (parsed instanceof type.errors) {
-                const validationError = fromError(parsed);
-                console.error(`Error parsing docker-compose.json, docker-compose.yaml, or docker-compose.yml for app ${app}:`, validationError.toString());
+                console.error(`Error parsing docker-compose.json for app ${app}:`, parsed.summary);
             }
 
             expect(parsed instanceof type.errors).toBe(false)

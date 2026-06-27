@@ -135,13 +135,13 @@
       "env_variable": "S3_SECRET_KEY"
     },
     {
-      "type": "string",
+      "type": "text",
       "required": false,
       "label": "S3 storage allowed origins (comma separated)",
       "env_variable": "S3_ALLOWED_ORIGINS"
     },
     {
-      "type": "string",
+      "type": "text",
       "required": false,
       "label": "S3 console allowed origins (comma separated)",
       "env_variable": "S3_CONSOLE_ALLOWED_ORIGINS"
