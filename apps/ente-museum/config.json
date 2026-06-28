@@ -29,19 +29,19 @@
       "env_variable": "S3_SECRETKEY"
     },
     {
-      "type": "text",
+      "type": "password",
       "required": true,
       "label": "JWT secret",
       "env_variable": "JWT_SECRET"
     },
     {
-      "type": "text",
+      "type": "password",
       "required": false,
       "label": "Key encryption",
       "env_variable": "ENTE_KEY_ENCRYPTION"
     },
     {
-      "type": "text",
+      "type": "password",
       "required": false,
       "label": "Key hash",
       "env_variable": "ENTE_KEY_HASH"
