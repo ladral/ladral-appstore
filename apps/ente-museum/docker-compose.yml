@@ -34,8 +34,8 @@ services:
       ' > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile
       --adapter caddyfile"
     ports:
-      - 9001:9001/tcp
-      - 9001:9001/udp
+      - ${S3_ADMIN_CONSOLE_PORT:-9001}:9001/tcp
+      - ${S3_ADMIN_CONSOLE_PORT:-9001}:9001/udp
     x-runtipi:
       internal_port: 8080
       is_main: true
