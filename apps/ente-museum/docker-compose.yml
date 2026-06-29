@@ -87,9 +87,6 @@ services:
       timeout: 5s
       retries: 5
       start_period: 30s
-    x-runtipi:
-      internal_port: 8080
-      is_main: true
   postgres:
     image: docker.io/library/postgres:18.4
     restart: unless-stopped
