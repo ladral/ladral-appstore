@@ -145,6 +145,12 @@
       "required": false,
       "label": "S3 console allowed origins (comma separated)",
       "env_variable": "S3_CONSOLE_ALLOWED_ORIGINS"
+    },
+    {
+      "type": "number",
+      "required": false,
+      "label": "S3 admin console port",
+      "env_variable": "S3_ADMIN_CONSOLE_PORT"
     }
   ],
   "supported_architectures": [
