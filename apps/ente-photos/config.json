@@ -1,0 +1,26 @@
+{
+  "name": "Ente Photos",
+  "id": "ente-photos",
+  "available": true,
+  "short_desc": "Ente Photos is a privacy-focused photo and video storage app.",
+  "author": "ente",
+  "port": 28766,
+  "https": true,
+  "categories": [
+    "media",
+    "photography"
+  ],
+  "description": "Ente Photos is a privacy-focused photo and video storage app that uses end-to-end encryption to keep your memories secure.",
+  "tipi_version": 3,
+  "version": "5bfbd78f40423aa0aa992b3cc3118e697a9128b7",
+  "source": "https://github.com/ente/ente",
+  "exposable": true,
+  "form_fields": [
+  ],
+  "supported_architectures": [
+    "arm64"
+  ],
+  "created_at": 1782929768681,
+  "updated_at": 1782929768681,
+  "dynamic_config": true
+}
