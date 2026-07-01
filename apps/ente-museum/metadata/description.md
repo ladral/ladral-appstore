@@ -34,7 +34,8 @@ This app deploys **Ente Museum** as a Runtipi app. This is the core backend serv
 ## Links
 
 - [Ente](https://ente.com)
-- [GitHub](https://github.com/ente-io/ente)
+- [GitHub](https://github.com/ente/ente)
+- [Museum releases](https://github.com/ente/ente/pkgs/container/server)
 
 ---
 
