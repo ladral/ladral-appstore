@@ -1,0 +1,25 @@
+{
+  "name": "Ente Paste",
+  "id": "ente-paste",
+  "available": true,
+  "short_desc": "Ente Paste is a privacy-focused pastebin service.",
+  "author": "ente",
+  "port": 28786,
+  "https": true,
+  "categories": [
+    "media"
+  ],
+  "description": "Ente Paste is a privacy-focused pastebin service that uses end-to-end encryption to securely share text snippets, code, and other content.",
+  "tipi_version": 1,
+  "version": "5bfbd78f40423aa0aa992b3cc3118e697a9128b7",
+  "source": "https://github.com/ente/ente",
+  "exposable": true,
+  "form_fields": [
+  ],
+  "supported_architectures": [
+    "arm64"
+  ],
+  "created_at": 1783023112335,
+  "updated_at": 1783023112335,
+  "dynamic_config": true
+}
