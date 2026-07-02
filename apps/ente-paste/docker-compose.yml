@@ -1,0 +1,26 @@
+x-runtipi:
+  schema_version: 2
+services:
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    command: >
+      sh -c "echo '
+        :3008 {
+          handle_path /api/* {
+            reverse_proxy http://ente-museum_ladral-caddy-1:8080
+          }
+      
+          reverse_proxy ente-web:3008
+        }
+      ' > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile
+      --adapter caddyfile"
+    x-runtipi:
+      internal_port: 3008
+      is_main: true
+  ente-web:
+    image: ghcr.io/ente/web:latest
+    restart: unless-stopped
+    environment:
+      - ENTE_PHOTOS_ORIGIN=https://${APP_EXPOSED_DOMAIN:-${APP_LOCAL_DOMAIN}}
+      - ENTE_API_ORIGIN=https://${APP_EXPOSED_DOMAIN:-${APP_LOCAL_DOMAIN}}/api
