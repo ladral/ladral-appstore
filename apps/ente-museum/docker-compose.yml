@@ -2,7 +2,7 @@ x-runtipi:
   schema_version: 2
 services:
   caddy:
-    image: caddy:2.11.4-alpine
+    image: ghcr.io/coreruleset/coraza-crs:4.25.0-caddy-alpine-202604120304
     restart: unless-stopped
     command: >
       sh -c "echo '
@@ -46,7 +46,7 @@ services:
       sh -c "wget https://github.com/ente/ente/releases/download/cli-v0.2.3/ente-cli-v0.2.3-linux-arm64.tar.gz -O /tmp/ente-cli.tar.gz && tar -xf /tmp/ente-cli.tar.gz -C /tmp && mv /tmp/ente /usr/local/bin/ && chmod +x /usr/local/bin/ente && ./museum"
     volumes:
       - ${APP_DATA_DIR}/museum-data:/data
-      - ${APP_DATA_DIR}/cli-data:/cli-data
+      - ${ROOT_FOLDER_HOST}/ente-cli-data:/cli-data
     environment:
       - ENTE_DB_HOST=postgres
       - ENTE_DB_PORT=5432
