@@ -46,7 +46,7 @@ services:
       sh -c "wget https://github.com/ente/ente/releases/download/cli-v0.2.3/ente-cli-v0.2.3-linux-arm64.tar.gz -O /tmp/ente-cli.tar.gz && tar -xf /tmp/ente-cli.tar.gz -C /tmp && mv /tmp/ente /usr/local/bin/ && chmod +x /usr/local/bin/ente && ./museum"
     volumes:
       - ${APP_DATA_DIR}/museum-data:/data
-      - ${ROOT_FOLDER_HOST}/ente-cli-data:/cli-data
+      - ${APP_DATA_DIR}/ente-cli-data:/cli-data
     environment:
       - ENTE_DB_HOST=postgres
       - ENTE_DB_PORT=5432
