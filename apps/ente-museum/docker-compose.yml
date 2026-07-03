@@ -2,7 +2,7 @@ x-runtipi:
   schema_version: 2
 services:
   caddy:
-    image: caddy:2.11.4-alpine
+    image: ghcr.io/coreruleset/coraza-crs:4.25.0-caddy-alpine-202604120304
     restart: unless-stopped
     command: >
       sh -c "echo '
