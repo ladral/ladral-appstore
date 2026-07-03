@@ -8,6 +8,18 @@ services:
       sh -c "echo '
 
         :8080 {
+      
+          # WAF
+          coraza_waf {
+            # Load the OWASP Core Rule Set (CRS)
+            load_owasp_crs
+
+            directives `
+            SecRuleEngine On
+            SecAuditEngine RelevantOnly
+            `
+          }
+      
           log {
             output stdout
             format console
@@ -22,13 +34,25 @@ services:
         }
 
         :9001 {
-            log {
-              output stdout
-              format console
-              level INFO
-            }
+      
+          # WAF
+          coraza_waf {
+            # Load the OWASP Core Rule Set (CRS)
+            load_owasp_crs
 
-            reverse_proxy rustfs:9001
+            directives `
+            SecRuleEngine On
+            SecAuditEngine RelevantOnly
+            `
+          }
+      
+          log {
+            output stdout
+            format console
+            level INFO
+          }
+
+          reverse_proxy rustfs:9001
         }
 
       ' > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile
