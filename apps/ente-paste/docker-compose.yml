@@ -2,11 +2,59 @@ x-runtipi:
   schema_version: 2
 services:
   caddy:
-    image: caddy:2-alpine
+    image: ghcr.io/coreruleset/coraza-crs:4.25.0-caddy-alpine-202604120304
     restart: unless-stopped
     command: >
       sh -c "echo '
+      
+        # Ensure Coraza WAF runs first - this must be included for Coraza to be working
+        {
+          order coraza_waf first
+          log {
+            output stdout
+            format console
+            level INFO
+          }
+        }
+      
         :3008 {
+      
+          # Load Coraza configuration                          
+          coraza_waf { 
+
+            # Main configuration file                          
+            include /opt/coraza/config/coraza.conf
+
+            # User defined configuration files                 
+            include /opt/coraza/config.d/*.conf
+      
+            # OWASP Core Rule Set (CRS) Setup                  
+            include /opt/coraza/config/crs-setup.conf
+
+            include /opt/coraza/owasp-crs/plugins/*-config.conf
+            include /opt/coraza/owasp-crs/plugins/*-before.conf
+
+            # User plugins Setup                               
+            include /opt/coraza/plugins/*-config.conf
+            include /opt/coraza/plugins/*-before.conf
+
+            # OWASP Core Rule Set (CRS)                        
+            include /opt/coraza/owasp-crs/rules/*.conf
+      
+            include /opt/coraza/owasp-crs/plugins/*-after.conf
+      
+            # User plugins after                               
+            include /opt/coraza/plugins/*-after.conf           
+
+            # Other baked in rule sets or configurations       
+            include /opt/coraza/rules/*.conf          
+
+            # User defined rule sets                           
+            include /opt/coraza/rules.d/*.conf
+      
+            # Any overrides specified in env vars              
+            include /opt/coraza/overrides/*.conf
+          }
           handle_path /api/* {
             reverse_proxy http://ente-museum_ladral-caddy-1:8080
           }
