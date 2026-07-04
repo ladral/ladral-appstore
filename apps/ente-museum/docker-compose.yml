@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     command: >
       sh -c "echo '
+      
         # Ensure Coraza WAF runs first - this must be included for Coraza to be working
         {
           order coraza_waf first
