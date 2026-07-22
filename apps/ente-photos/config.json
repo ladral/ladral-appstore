@@ -11,7 +11,7 @@
     "photography"
   ],
   "description": "Ente Photos is a privacy-focused photo and video storage app that uses end-to-end encryption to keep your memories secure.",
-  "tipi_version": 4,
+  "tipi_version": 5,
   "version": "5bfbd78f40423aa0aa992b3cc3118e697a9128b7",
   "source": "https://github.com/ente/ente",
   "exposable": true,
@@ -21,6 +21,6 @@
     "arm64"
   ],
   "created_at": 1782929768681,
-  "updated_at": 1783193587281,
+  "updated_at": 1784749765039,
   "dynamic_config": true
 }
