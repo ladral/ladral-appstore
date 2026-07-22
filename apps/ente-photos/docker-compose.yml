@@ -5,7 +5,7 @@ services:
     image: ghcr.io/coreruleset/coraza-crs:4.25.0-caddy-alpine-202604120304
     restart: unless-stopped
     command: >
-      sh -c "echo '
+      sh -c "echo 'SecAction \"id:900200,phase:1,pass,t:none,nolog,tag:'\''OWASP_CRS'\'',ver:'\''OWASP_CRS/4.25.0'\'',setvar:'\''tx.allowed_methods=GET HEAD POST OPTIONS PUT'\''\"' > /opt/coraza/rules.d/custom.conf && echo 'SecAction \"id:900220,phase:1,pass,t:none,nolog,tag:'\''OWASP_CRS'\'',ver:'\''OWASP_CRS/4.25.0'\'',setvar:'\''tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json| |application/grpc| |text/plain| |text/plain; charset=\\\"*\\\"|'\''\"' >> /opt/coraza/rules.d/custom.conf && echo '
       
         # Ensure Coraza WAF runs first - this must be included for Coraza to be working
         {
