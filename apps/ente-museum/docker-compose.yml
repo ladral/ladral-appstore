@@ -166,7 +166,7 @@ services:
       internal_port: 8080
       is_main: true
   museum:
-    image: ghcr.io/ente/server:d449381395df63e274ad1effbd63709d54dfdf6e
+    image: ghcr.io/ente/server:0137a0c754ac0fe4f2c4c7421727c349327eb990
     restart: unless-stopped
     entrypoint: |
       sh -c "wget https://github.com/ente/ente/releases/download/cli-v0.2.3/ente-cli-v0.2.3-linux-arm64.tar.gz -O /tmp/ente-cli.tar.gz && tar -xf /tmp/ente-cli.tar.gz -C /tmp && mv /tmp/ente /usr/local/bin/ && chmod +x /usr/local/bin/ente && ./museum"
