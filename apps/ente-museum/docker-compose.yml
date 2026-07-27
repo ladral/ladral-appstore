@@ -4,10 +4,60 @@ services:
   caddy:
     image: ghcr.io/coreruleset/coraza-crs:4.25.0-caddy-alpine-202604120304
     restart: unless-stopped
-    command: >
-      sh -c "echo '
-      
+    command:
+      - |
+        # Custom rules that must run BEFORE the CRS rules.
+        # config.d/*.conf is included before the CRS rules in the Caddyfile,
+        # so the ctl actions below execute before 911100/920340 are evaluated.
+        cat << 'EOF' > /opt/coraza/config.d/custom-before.conf
+        
+        # Allow PUT for /s3-storage/ente/*: disable method enforcement (911100),
+        # content-type enforcement (920340) and request body inspection
+        SecRule REQUEST_URI "@beginsWith /s3-storage/" \
+          "id:1001,\
+          phase:1,\
+          pass,\
+          nolog,\
+          chain"
+          SecRule REQUEST_METHOD "@streq PUT" \
+            "ctl:ruleRemoveById=911100,\
+            ctl:ruleRemoveById=920340,\
+            ctl:requestBodyAccess=Off"
+        
+        
+        # Allow PUT for /rustfs/admin/*: disable method enforcement (911100)
+        SecRule REQUEST_URI "@beginsWith /rustfs/admin/" \
+          "id:1002,\
+          phase:1,\
+          pass,\
+          nolog,\
+          chain"
+          SecRule REQUEST_METHOD "@streq PUT" \
+            "ctl:ruleRemoveById=911100"
+
+        # Allow text/plain;charset=UTF-8 content type
+        SecRule REQUEST_HEADERS:Content-Type "@contains text/plain;charset=UTF-8" \
+          "id:1000,\
+          phase:1,\
+          pass,\
+          nolog,\
+          setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/plain| |text/plain;charset=UTF-8|'"
+        EOF
+
+        # Directives that must come AFTER the CRS rule definitions
+        cat << 'EOF' > /opt/coraza/rules.d/custom.conf
+        
+        # Disable rule 920420 globally
+        SecRuleRemoveById 920420
+        EOF
+
+        /entrypoint.sh
+
+        # Write Caddyfile
+        cat << 'EOF' > /etc/caddy/Caddyfile
+
         # Ensure Coraza WAF runs first - this must be included for Coraza to be working
+
         {
           order coraza_waf first
           log {
@@ -16,43 +66,43 @@ services:
             level INFO
           }
         }
-        
-        :8080 {
-      
-          # Load Coraza configuration                          
-          coraza_waf { 
 
-            # Main configuration file                          
+        :8080 {
+
+          # Load Coraza configuration
+          coraza_waf {
+
+            # Main configuration file
             include /opt/coraza/config/coraza.conf
 
-            # User defined configuration files                 
+            # User defined configuration files
             include /opt/coraza/config.d/*.conf
-    
-            # OWASP Core Rule Set (CRS) Setup                  
+
+            # OWASP Core Rule Set (CRS) Setup
             include /opt/coraza/config/crs-setup.conf
 
             include /opt/coraza/owasp-crs/plugins/*-config.conf
             include /opt/coraza/owasp-crs/plugins/*-before.conf
 
-            # User plugins Setup                               
+            # User plugins Setup
             include /opt/coraza/plugins/*-config.conf
             include /opt/coraza/plugins/*-before.conf
 
-            # OWASP Core Rule Set (CRS)                        
+            # OWASP Core Rule Set (CRS)
             include /opt/coraza/owasp-crs/rules/*.conf
-    
+
             include /opt/coraza/owasp-crs/plugins/*-after.conf
-      
-            # User plugins after                               
-            include /opt/coraza/plugins/*-after.conf           
 
-            # Other baked in rule sets or configurations       
-            include /opt/coraza/rules/*.conf          
+            # User plugins after
+            include /opt/coraza/plugins/*-after.conf
 
-            # User defined rule sets                           
+            # Other baked in rule sets or configurations
+            include /opt/coraza/rules/*.conf
+
+            # User defined rule sets
             include /opt/coraza/rules.d/*.conf
-    
-            # Any overrides specified in env vars              
+
+            # Any overrides specified in env vars
             include /opt/coraza/overrides/*.conf
           }
 
@@ -64,49 +114,51 @@ services:
         }
 
         :9001 {
-      
-         # Load Coraza configuration                          
-          coraza_waf { 
+         # Load Coraza configuration
+          coraza_waf {
 
-            # Main configuration file                          
+            # Main configuration file
             include /opt/coraza/config/coraza.conf
 
-            # User defined configuration files                 
+            # User defined configuration files
             include /opt/coraza/config.d/*.conf
-      
-            # OWASP Core Rule Set (CRS) Setup                  
+
+            # OWASP Core Rule Set (CRS) Setup
             include /opt/coraza/config/crs-setup.conf
 
             include /opt/coraza/owasp-crs/plugins/*-config.conf
             include /opt/coraza/owasp-crs/plugins/*-before.conf
 
-            # User plugins Setup                               
+            # User plugins Setup
             include /opt/coraza/plugins/*-config.conf
             include /opt/coraza/plugins/*-before.conf
 
-            # OWASP Core Rule Set (CRS)                        
+            # OWASP Core Rule Set (CRS)
             include /opt/coraza/owasp-crs/rules/*.conf
-      
+
             include /opt/coraza/owasp-crs/plugins/*-after.conf
-      
-            # User plugins after                               
-            include /opt/coraza/plugins/*-after.conf           
 
-            # Other baked in rule sets or configurations       
-            include /opt/coraza/rules/*.conf          
+            # User plugins after
+            include /opt/coraza/plugins/*-after.conf
 
-            # User defined rule sets                           
+            # Other baked in rule sets or configurations
+            include /opt/coraza/rules/*.conf
+
+            # User defined rule sets
             include /opt/coraza/rules.d/*.conf
-      
-            # Any overrides specified in env vars              
+
+            # Any overrides specified in env vars
             include /opt/coraza/overrides/*.conf
           }
 
           reverse_proxy rustfs:9001
         }
 
-      ' > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile
-      --adapter caddyfile"
+        EOF
+
+        # Launch Caddy
+        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+    entrypoint: /bin/sh -c
     ports:
       - ${S3_ADMIN_CONSOLE_PORT:-9001}:9001/tcp
       - ${S3_ADMIN_CONSOLE_PORT:-9001}:9001/udp
