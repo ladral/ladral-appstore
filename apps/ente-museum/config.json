@@ -11,7 +11,7 @@
     "photography"
   ],
   "description": "Ente Museum is the core backend server for all Ente apps and must be installed prior to any other Ente app",
-  "tipi_version": 6,
+  "tipi_version": 7,
   "version": "d449381395df63e274ad1effbd63709d54dfdf6e",
   "source": "https://github.com/ente/ente",
   "exposable": true,
@@ -24,9 +24,19 @@
     },
     {
       "type": "random",
-      "label": "S3 secret key",
+      "label": "S3 admin secret key",
       "min": 32,
       "env_variable": "S3_SECRETKEY"
+    },
+    {
+      "type": "text",
+      "label": "S3 API access key",
+      "env_variable": "S3_API_ACCESSKEY"
+    },
+    {
+      "type": "password",
+      "label": "S3 API secret key",
+      "env_variable": "S3_API_SECRETKEY"
     },
     {
       "type": "password",
@@ -157,6 +167,6 @@
     "arm64"
   ],
   "created_at": 1782504583621,
-  "updated_at": 1783113691367,
+  "updated_at": 1785182853139,
   "dynamic_config": true
 }
