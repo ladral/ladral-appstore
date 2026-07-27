@@ -4,9 +4,30 @@ services:
   caddy:
     image: ghcr.io/coreruleset/coraza-crs:4.25.0-caddy-alpine-202604120304
     restart: unless-stopped
-    command: >
-      sh -c "echo 'SecAction \"id:900200,phase:1,pass,t:none,nolog,tag:'\''OWASP_CRS'\'',ver:'\''OWASP_CRS/4.25.0'\'',setvar:'\''tx.allowed_methods=GET HEAD POST OPTIONS PUT'\''\"' > /opt/coraza/rules.d/custom.conf && echo 'SecAction \"id:900220,phase:1,pass,t:none,nolog,tag:'\''OWASP_CRS'\'',ver:'\''OWASP_CRS/4.25.0'\'',setvar:'\''tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json| |application/grpc| |text/plain| |text/plain; charset=\\\"*\\\"|'\''\"' >> /opt/coraza/rules.d/custom.conf && echo '
-      
+    command:
+      - |
+        # Add text/plain to the list of allowed request content types.
+        # This file is included via the plugins/*-before.conf directive, i.e.
+        # BEFORE the CRS rules run (and after crs-setup.conf sets the
+        # default allow-list), so rule 920420 sees the updated value.
+        mkdir -p /opt/coraza/plugins
+        cat << 'EOF' > /opt/coraza/plugins/custom-before.conf
+        
+        # Allow text/plain by extending the default CRS allowed content types
+        # and disabling rule 920420 for matching requests.
+        SecRule REQUEST_HEADERS:Content-Type "@contains text/plain" \
+          "id:1000,\
+          phase:1,\
+          pass,\
+          nolog,\
+          ctl:ruleRemoveById=920420,\
+          setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json| |text/plain| |text/plain;charset=UTF-8|'"
+        EOF
+
+        /entrypoint.sh
+
+        # Write Caddyfile
+        cat << 'EOF' > /etc/caddy/Caddyfile
         # Ensure Coraza WAF runs first - this must be included for Coraza to be working
         {
           order coraza_waf first
@@ -16,9 +37,9 @@ services:
             level INFO
           }
         }
-      
+
         :3000 {
-      
+
           # Load Coraza configuration                          
           coraza_waf { 
 
@@ -27,7 +48,7 @@ services:
 
             # User defined configuration files                 
             include /opt/coraza/config.d/*.conf
-      
+
             # OWASP Core Rule Set (CRS) Setup                  
             include /opt/coraza/config/crs-setup.conf
 
@@ -40,9 +61,9 @@ services:
 
             # OWASP Core Rule Set (CRS)                        
             include /opt/coraza/owasp-crs/rules/*.conf
-      
+
             include /opt/coraza/owasp-crs/plugins/*-after.conf
-      
+
             # User plugins after                               
             include /opt/coraza/plugins/*-after.conf           
 
@@ -51,28 +72,31 @@ services:
 
             # User defined rule sets                           
             include /opt/coraza/rules.d/*.conf
-      
+
             # Any overrides specified in env vars              
             include /opt/coraza/overrides/*.conf
           }
-      
+
           handle_path /api/* {
             reverse_proxy http://ente-museum_ladral-caddy-1:8080
           }
-      
+
           handle /s3-storage/* {
             reverse_proxy http://ente-museum_ladral-caddy-1:8080
           }
-      
+
           reverse_proxy ente-web:3000
         }
-      ' > /etc/caddy/Caddyfile && caddy run --config /etc/caddy/Caddyfile
-      --adapter caddyfile"
+        EOF
+
+        # Launch Caddy
+        exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
+    entrypoint: /bin/sh -c
     x-runtipi:
       internal_port: 3000
       is_main: true
   ente-web:
-    image: ghcr.io/ente/web:latest
+    image: ghcr.io/ente/web:062c7066883b37978b6dea7b7703d4efc5f13351
     restart: unless-stopped
     environment:
       - ENTE_PHOTOS_ORIGIN=https://${APP_EXPOSED_DOMAIN:-${APP_LOCAL_DOMAIN}}
