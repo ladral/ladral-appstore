@@ -3,7 +3,7 @@
   "services": [
     {
       "name": "grimmory",
-      "image": "grimmory/grimmory:nightly-20260409-a86d661",
+      "image": "grimmory/grimmory:v3.2.4",
       "isMain": true,
       "internalPort": "6060",
       "volumes": [
