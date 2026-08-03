@@ -11,7 +11,7 @@
     "photography"
   ],
   "description": "Ente Museum is the core backend server for all Ente apps and must be installed prior to any other Ente app",
-  "tipi_version": 9,
+  "tipi_version": 10,
   "version": "0137a0c754ac0fe4f2c4c7421727c349327eb990",
   "source": "https://github.com/ente/ente",
   "exposable": true,
@@ -167,6 +167,6 @@
     "arm64"
   ],
   "created_at": 1782504583621,
-  "updated_at": 1785186810755,
+  "updated_at": 1785784127160,
   "dynamic_config": true
 }
