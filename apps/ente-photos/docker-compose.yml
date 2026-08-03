@@ -5,25 +5,7 @@ services:
     image: ghcr.io/coreruleset/coraza-crs:4.25.0-caddy-alpine-202604120304
     restart: unless-stopped
     command:
-      - |
-        # Add text/plain to the list of allowed request content types.
-        # This file is included via the plugins/*-before.conf directive, i.e.
-        # BEFORE the CRS rules run (and after crs-setup.conf sets the
-        # default allow-list), so rule 920420 sees the updated value.
-        mkdir -p /opt/coraza/plugins
-        cat << 'EOF' > /opt/coraza/plugins/custom-before.conf
-        
-        # Allow text/plain by extending the default CRS allowed content types
-        # and disabling rule 920420 for matching requests.
-        SecRule REQUEST_HEADERS:Content-Type "@contains text/plain" \
-          "id:1000,\
-          phase:1,\
-          pass,\
-          nolog,\
-          ctl:ruleRemoveById=920420,\
-          setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |multipart/related| |text/xml| |application/xml| |application/soap+xml| |application/json| |application/cloudevents+json| |application/cloudevents-batch+json| |text/plain| |text/plain;charset=UTF-8|'"
-        EOF
-
+      - >
         /entrypoint.sh
 
         # Write Caddyfile
@@ -40,43 +22,10 @@ services:
 
         :3000 {
 
-          # Load Coraza configuration                          
-          coraza_waf { 
+          # Paths that must bypass Coraza entirely
+          @waf_bypass path /api/* /s3-storage/*
 
-            # Main configuration file                          
-            include /opt/coraza/config/coraza.conf
-
-            # User defined configuration files                 
-            include /opt/coraza/config.d/*.conf
-
-            # OWASP Core Rule Set (CRS) Setup                  
-            include /opt/coraza/config/crs-setup.conf
-
-            include /opt/coraza/owasp-crs/plugins/*-config.conf
-            include /opt/coraza/owasp-crs/plugins/*-before.conf
-
-            # User plugins Setup                               
-            include /opt/coraza/plugins/*-config.conf
-            include /opt/coraza/plugins/*-before.conf
-
-            # OWASP Core Rule Set (CRS)                        
-            include /opt/coraza/owasp-crs/rules/*.conf
-
-            include /opt/coraza/owasp-crs/plugins/*-after.conf
-
-            # User plugins after                               
-            include /opt/coraza/plugins/*-after.conf           
-
-            # Other baked in rule sets or configurations       
-            include /opt/coraza/rules/*.conf          
-
-            # User defined rule sets                           
-            include /opt/coraza/rules.d/*.conf
-
-            # Any overrides specified in env vars              
-            include /opt/coraza/overrides/*.conf
-          }
-
+          # Handle bypassed paths first, WITHOUT invoking coraza_waf
           handle_path /api/* {
             reverse_proxy http://ente-museum_ladral-caddy-1:8080
           }
@@ -85,7 +34,47 @@ services:
             reverse_proxy http://ente-museum_ladral-caddy-1:8080
           }
 
-          reverse_proxy ente-web:3000
+          # All other requestts goes through Coraza
+          handle {
+            # Load Coraza configuration
+            coraza_waf {
+
+              # Main configuration file                          
+              include /opt/coraza/config/coraza.conf
+
+              # User defined configuration files
+              include /opt/coraza/config.d/*.conf
+
+              # OWASP Core Rule Set (CRS) Setup
+              include /opt/coraza/config/crs-setup.conf
+
+              include /opt/coraza/owasp-crs/plugins/*-config.conf
+              include /opt/coraza/owasp-crs/plugins/*-before.conf
+
+              # User plugins Setup
+              include /opt/coraza/plugins/*-config.conf
+              include /opt/coraza/plugins/*-before.conf
+
+              # OWASP Core Rule Set (CRS)
+              include /opt/coraza/owasp-crs/rules/*.conf
+
+              include /opt/coraza/owasp-crs/plugins/*-after.conf
+
+              # User plugins after
+              include /opt/coraza/plugins/*-after.conf
+
+              # Other baked in rule sets or configurations
+              include /opt/coraza/rules/*.conf
+
+              # User defined rule sets
+              include /opt/coraza/rules.d/*.conf
+
+              # Any overrides specified in env vars
+              include /opt/coraza/overrides/*.conf
+            }
+
+            reverse_proxy ente-web:3000
+          }
         }
         EOF
 

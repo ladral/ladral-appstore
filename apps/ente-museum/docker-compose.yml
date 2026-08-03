@@ -42,6 +42,17 @@ services:
           pass,\
           nolog,\
           setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/plain| |text/plain;charset=UTF-8|'"
+        
+        # Allow PUT for /s3-storage/ente/*: disable method enforcement (911100)
+        SecRule REQUEST_URI "@beginsWith /files/data" \
+          "id:1003,\
+          phase:1,\
+          pass,\
+          nolog,\
+          chain"
+          SecRule REQUEST_METHOD "@streq PUT" \
+            "ctl:ruleRemoveById=911100"       
+        
         EOF
 
         # Directives that must come AFTER the CRS rule definitions
