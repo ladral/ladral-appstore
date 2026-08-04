@@ -53,7 +53,7 @@ services:
         
         # Allow PUT for /s3-storage/ente/*: disable method enforcement (911100)
         
-        SecRule REQUEST_URI "@beginsWith /files/data" \
+        SecRule REQUEST_URI "@beginsWith /files/" \
           "id:1003,\
           phase:1,\
           pass,\
