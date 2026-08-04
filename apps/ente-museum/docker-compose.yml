@@ -9,10 +9,13 @@ services:
         # Custom rules that must run BEFORE the CRS rules.
         # config.d/*.conf is included before the CRS rules in the Caddyfile,
         # so the ctl actions below execute before 911100/920340 are evaluated.
+        
         cat << 'EOF' > /opt/coraza/config.d/custom-before.conf
+        
         
         # Allow PUT for /s3-storage/ente/*: disable method enforcement (911100),
         # content-type enforcement (920340) and request body inspection
+        
         SecRule REQUEST_URI "@beginsWith /s3-storage/" \
           "id:1001,\
           phase:1,\
@@ -25,7 +28,9 @@ services:
             ctl:requestBodyAccess=Off"
         
         
+        
         # Allow PUT for /rustfs/admin/*: disable method enforcement (911100)
+        
         SecRule REQUEST_URI "@beginsWith /rustfs/admin/" \
           "id:1002,\
           phase:1,\
@@ -35,7 +40,9 @@ services:
           SecRule REQUEST_METHOD "@streq PUT" \
             "ctl:ruleRemoveById=911100"
 
+
         # Allow text/plain;charset=UTF-8 content type
+        
         SecRule REQUEST_HEADERS:Content-Type "@contains text/plain;charset=UTF-8" \
           "id:1000,\
           phase:1,\
@@ -43,7 +50,9 @@ services:
           nolog,\
           setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/plain| |text/plain;charset=UTF-8|'"
         
+        
         # Allow PUT for /s3-storage/ente/*: disable method enforcement (911100)
+        
         SecRule REQUEST_URI "@beginsWith /files/data" \
           "id:1003,\
           phase:1,\
@@ -55,16 +64,23 @@ services:
         
         EOF
 
+
         # Directives that must come AFTER the CRS rule definitions
+        
         cat << 'EOF' > /opt/coraza/rules.d/custom.conf
         
         # Disable rule 920420 globally
+        
         SecRuleRemoveById 920420
+        
         EOF
+        
 
         /entrypoint.sh
+        
 
         # Write Caddyfile
+        
         cat << 'EOF' > /etc/caddy/Caddyfile
 
         # Ensure Coraza WAF runs first - this must be included for Coraza to be working
@@ -81,6 +97,7 @@ services:
         :8080 {
 
           # Load Coraza configuration
+        
           coraza_waf {
 
             # Main configuration file
@@ -124,8 +141,11 @@ services:
           reverse_proxy museum:8080
         }
 
+
         :9001 {
+        
          # Load Coraza configuration
+        
           coraza_waf {
 
             # Main configuration file
@@ -167,7 +187,7 @@ services:
 
         EOF
 
-        # Launch Caddy
+
         exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
     entrypoint: /bin/sh -c
     ports:

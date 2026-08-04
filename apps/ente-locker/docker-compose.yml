@@ -6,6 +6,7 @@ services:
     restart: unless-stopped
     command:
       - >
+        
         /entrypoint.sh
 
         # Write Caddyfile
@@ -37,6 +38,7 @@ services:
           handle /s3-storage/* {
             reverse_proxy http://ente-museum_ladral-caddy-1:8080
           }
+
 
           # All other requestts goes through Coraza
         
@@ -80,13 +82,15 @@ services:
               include /opt/coraza/overrides/*.conf
             }
 
-            reverse_proxy ente-web:3000
+            reverse_proxy ente-web:3009
+        
           }
         
         }
         
         EOF
-        
+
+
         exec caddy run --config /etc/caddy/Caddyfile --adapter caddyfile
 
     entrypoint: /bin/sh -c

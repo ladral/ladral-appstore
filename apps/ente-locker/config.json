@@ -1,0 +1,25 @@
+{
+  "name": "Ente Locker",
+  "id": "ente-locker",
+  "available": true,
+  "short_desc": "Ente Locker is a privacy-focused password manager that keeps your credentials, secure notes, and sensitive data secure.",
+  "author": "ente",
+  "port": 28796,
+  "https": true,
+  "categories": [
+    "media"
+  ],
+  "description": "Ente Locker is a privacy-focused password manager that uses end-to-end encryption to keep your credentials, secure notes, and sensitive data secure.",
+  "tipi_version": 1,
+  "version": "b940993aef44643614d3463e9963328a63264ec0",
+  "source": "https://github.com/ente/ente",
+  "exposable": true,
+  "form_fields": [
+  ],
+  "supported_architectures": [
+    "arm64"
+  ],
+  "created_at": 1785787700683,
+  "updated_at": 1785787700683,
+  "dynamic_config": true
+}
