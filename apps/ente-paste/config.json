@@ -10,8 +10,8 @@
     "media"
   ],
   "description": "Ente Paste is a privacy-focused pastebin service that uses end-to-end encryption to securely share text snippets, code, and other content.",
-  "tipi_version": 4,
-  "version": "b940993aef44643614d3463e9963328a63264ec0",
+  "tipi_version": 5,
+  "version": "5ab0c5b4c7a89c4e470ef6f793600da33cebf35d",
   "source": "https://github.com/ente/ente",
   "exposable": true,
   "form_fields": [
@@ -20,6 +20,6 @@
     "arm64"
   ],
   "created_at": 1783023112335,
-  "updated_at": 1785784127160,
+  "updated_at": 1786738900262,
   "dynamic_config": true
 }

@@ -64,7 +64,7 @@ services:
 - [GitHub](https://github.com/ente/ente)
 - [Museum releases](https://github.com/ente/ente/pkgs/container/server)
 - [Ente CLI](https://ente.com/help/self-hosting/administration/cli)
-
+- [Coraza WAF Images](https://github.com/coreruleset/coraza-crs-docker/pkgs/container/coraza-crs)
 ---
 
 **Note**: This is a core component. To use Ente's full functionality, you'll also need to deploy the companion Ente apps (e.g., Photos, Locker, etc.) as separate Runtipi apps. Each of these will connect to **Ente Museum** for API.
