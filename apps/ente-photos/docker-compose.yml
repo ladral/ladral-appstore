@@ -94,7 +94,7 @@ services:
       internal_port: 3000
       is_main: true
   ente-web:
-    image: ghcr.io/ente/web:b940993aef44643614d3463e9963328a63264ec0
+    image: ghcr.io/ente/web:5ab0c5b4c7a89c4e470ef6f793600da33cebf35d
     restart: unless-stopped
     environment:
       - ENTE_PHOTOS_ORIGIN=https://${APP_EXPOSED_DOMAIN:-${APP_LOCAL_DOMAIN}}
