@@ -51,7 +51,7 @@ services:
           setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/plain| |text/plain;charset=UTF-8|'"
         
         
-        # Allow PUT for /s3-storage/ente/*: disable method enforcement (911100)
+        # Allow PUT for /files/*: disable method enforcement (911100)
         
         SecRule REQUEST_URI "@beginsWith /files/" \
           "id:1003,\
@@ -60,7 +60,20 @@ services:
           nolog,\
           chain"
           SecRule REQUEST_METHOD "@streq PUT" \
-            "ctl:ruleRemoveById=911100"       
+            "ctl:ruleRemoveById=911100"
+        
+        
+        # Allow DELETE for /s3-storage/ente/*: disable method enforcement (911100)
+        
+        SecRule REQUEST_URI "@beginsWith /s3-storage/ente" \
+          "id:1004,\
+          phase:1,\
+          pass,\
+          nolog,\
+          chain"
+          SecRule REQUEST_METHOD "@streq DELETE" \
+            "ctl:ruleRemoveById=911100"
+        
         
         EOF
 
@@ -197,7 +210,7 @@ services:
       internal_port: 8080
       is_main: true
   museum:
-    image: ghcr.io/ente/server:0137a0c754ac0fe4f2c4c7421727c349327eb990
+    image: ghcr.io/ente/server:f1d1f70f962f5ec0c4df01ec4b4498211774f159
     restart: unless-stopped
     entrypoint: |
       sh -c "wget https://github.com/ente/ente/releases/download/cli-v0.2.3/ente-cli-v0.2.3-linux-arm64.tar.gz -O /tmp/ente-cli.tar.gz && tar -xf /tmp/ente-cli.tar.gz -C /tmp && mv /tmp/ente /usr/local/bin/ && chmod +x /usr/local/bin/ente && ./museum"
@@ -245,7 +258,7 @@ services:
       retries: 5
       start_period: 30s
   postgres:
-    image: docker.io/library/postgres:18.4
+    image: docker.io/library/postgres:18.6
     restart: unless-stopped
     volumes:
       - ${APP_DATA_DIR}/postgres-data:/var/lib/postgresql
@@ -260,7 +273,7 @@ services:
       retries: 5
       start_period: 15s
   rustfs:
-    image: rustfs/rustfs:1.0.0-beta.12
+    image: rustfs/rustfs:1.0.0-rc.1
     cpus: 2.4
     restart: unless-stopped
     volumes:
