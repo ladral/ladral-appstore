@@ -2,7 +2,7 @@ x-runtipi:
   schema_version: 2
 services:
   caddy:
-    image: ghcr.io/coreruleset/coraza-crs:4.28.0-caddy-alpine-202607180107
+    image: ghcr.io/coreruleset/coraza-crs:4.29.0-caddy-alpine-202609021109
     restart: unless-stopped
     command:
       - |
@@ -13,34 +13,6 @@ services:
         cat << 'EOF' > /opt/coraza/config.d/custom-before.conf
         
         
-        # Allow PUT for /s3-storage/ente/*: disable method enforcement (911100),
-        # content-type enforcement (920340) and request body inspection
-        
-        SecRule REQUEST_URI "@beginsWith /s3-storage/" \
-          "id:1001,\
-          phase:1,\
-          pass,\
-          nolog,\
-          chain"
-          SecRule REQUEST_METHOD "@streq PUT" \
-            "ctl:ruleRemoveById=911100,\
-            ctl:ruleRemoveById=920340,\
-            ctl:requestBodyAccess=Off"
-        
-        
-        
-        # Allow PUT for /rustfs/admin/*: disable method enforcement (911100)
-        
-        SecRule REQUEST_URI "@beginsWith /rustfs/admin/" \
-          "id:1002,\
-          phase:1,\
-          pass,\
-          nolog,\
-          chain"
-          SecRule REQUEST_METHOD "@streq PUT" \
-            "ctl:ruleRemoveById=911100"
-
-
         # Allow text/plain;charset=UTF-8 content type
         
         SecRule REQUEST_HEADERS:Content-Type "@contains text/plain;charset=UTF-8" \
@@ -51,21 +23,44 @@ services:
           setvar:'tx.allowed_request_content_type=|application/x-www-form-urlencoded| |multipart/form-data| |text/plain| |text/plain;charset=UTF-8|'"
         
         
-        # Allow PUT for /files/*: disable method enforcement (911100)
+        # Disable content-type enforcement (920340) and request body inspection
         
-        SecRule REQUEST_URI "@beginsWith /files/" \
-          "id:1003,\
+        SecRule REQUEST_URI "@beginsWith /s3-storage/" \
+          "id:1001,\
+          phase:1,\
+          pass,\
+          nolog,\
+          chain"
+          SecRule REQUEST_METHOD "@streq PUT" \
+            ctl:ruleRemoveById=920340,\
+            ctl:requestBodyAccess=Off"
+        
+        
+        # Allow PUT requests for /*: disable method enforcement (911100)
+        
+        SecRule REQUEST_URI "@beginsWith /" \
+          "id:1002,\
           phase:1,\
           pass,\
           nolog,\
           chain"
           SecRule REQUEST_METHOD "@streq PUT" \
             "ctl:ruleRemoveById=911100"
+
+
+        # Allow large argument count on /collections/add-files: disable 200007
+        
+        SecRule REQUEST_URI "@beginsWith /collections/add-files" \
+          "id:1003,\
+          phase:1,\
+          pass,\
+          nolog,\
+          ctl:ruleRemoveById=200007"
         
         
-        # Allow DELETE for /s3-storage/ente/*: disable method enforcement (911100)
+        # Allow DELETE requests: disable method enforcement (911100)
         
-        SecRule REQUEST_URI "@beginsWith /s3-storage/ente" \
+        SecRule REQUEST_URI "@beginsWith /" \
           "id:1004,\
           phase:1,\
           pass,\
@@ -74,6 +69,25 @@ services:
           SecRule REQUEST_METHOD "@streq DELETE" \
             "ctl:ruleRemoveById=911100"
         
+        
+        # Legitimately posts >1000 arguments for /collections/add-files  (200007)
+        
+        SecRule REQUEST_URI "@beginsWith /collections/add-files" \
+          "id:1005,\
+          phase:1,\
+          pass,\
+          nolog,\
+          ctl:ruleRemoveById=200007"
+        
+        
+        # ensure mobile device login works
+        
+        SecRule REQUEST_HEADERS:User-Agent "@rx (Android|iPhone|iPad|iOS)" \
+          "id:1006,\
+          phase:1,\
+          pass,\
+          nolog,\
+          ctl:ruleRemoveById=943120"
         
         EOF
 
@@ -210,7 +224,7 @@ services:
       internal_port: 8080
       is_main: true
   museum:
-    image: ghcr.io/ente/server:f1d1f70f962f5ec0c4df01ec4b4498211774f159
+    image: ghcr.io/ente/server:163f45c26f130090abed03649530f53d2d976565
     restart: unless-stopped
     entrypoint: |
       sh -c "wget https://github.com/ente/ente/releases/download/cli-v0.2.3/ente-cli-v0.2.3-linux-arm64.tar.gz -O /tmp/ente-cli.tar.gz && tar -xf /tmp/ente-cli.tar.gz -C /tmp && mv /tmp/ente /usr/local/bin/ && chmod +x /usr/local/bin/ente && ./museum"
@@ -273,7 +287,7 @@ services:
       retries: 5
       start_period: 15s
   rustfs:
-    image: rustfs/rustfs:1.0.0-rc.1
+    image: rustfs/rustfs:1.0.0-rc.6
     cpus: 2.4
     restart: unless-stopped
     volumes:
