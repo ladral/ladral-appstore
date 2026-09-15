@@ -60,7 +60,7 @@ services:
         
         # Allow DELETE requests: disable method enforcement (911100)
         
-        SecRule REQUEST_URI "@beginsWith /" \)" 
+        SecRule REQUEST_URI "@beginsWith /" \
           "id:1004,\
           phase:1,\
           pass,\
