@@ -32,7 +32,7 @@ services:
           nolog,\
           chain"
           SecRule REQUEST_METHOD "@streq PUT" \
-            ctl:ruleRemoveById=920340,\
+            "ctl:ruleRemoveById=920340,\
             ctl:requestBodyAccess=Off"
         
         
